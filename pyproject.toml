@@ -6,12 +6,12 @@ authors = ["edlwang <ewang43@jhu.edu>"]
 package-mode=false
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 langchain = "^0.2.5"
 pandas = "^2.2.2"
 scikit-learn = "^1.5.0"
 matplotlib = "^3.9.0"
-scipy = "^1.13.1"
+scipy = "1.12.0"
 tqdm = "^4.66.4"
 langchain-community = "^0.2.5"
 llama-cpp-python = "0.2.55"

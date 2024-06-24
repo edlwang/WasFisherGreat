@@ -1,5 +1,6 @@
 import numpy as np
-from sklearn.manifold import MDS
+from graspologic.embed import ClassicalMDS as MDS
+
 from pandas import DataFrame
 from numpy.linalg import svd
 import pandas as pd
@@ -33,7 +34,7 @@ def plot_scree(svs, title="", d=None, ax=None):
         ax.text(x=d+1, y=svs[d], s="Dimension {:d}".format(d), color='r', size=15)
 
 #print(type(lowdim_embeddings))
-mds2 = MDS(n_components=100, normalized_stress='auto', random_state=123456)
+mds2 = MDS(n_components=100)
 df = pd.DataFrame(mds2.fit_transform(embeddings))
 #df = pd.DataFrame(embeddings)
 #s = df.std()
@@ -42,7 +43,7 @@ U, s, Vt = svd(df)
 #print(s)
 plot_scree(s, title="Scree plot of mds")
 
-mds = MDS(n_components=2, normalized_stress='auto', random_state=123456) # 123456 with X0, 12345 for VL
+mds = MDS(n_components=2) # 123456 with X0, 12345 for VL
 lowdim_embeddings = mds.fit_transform(embeddings)
 
 sizes = np.tile(np.repeat([30, 1], repeats=[1, 10]), 25)
