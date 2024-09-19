@@ -56,7 +56,8 @@ llm = LlamaCpp(
 )
 llm.client.verbose = False
 
-num_reps = 100
+num_reps = 10
+"""
 output = []
 count = 0
 while count < num_reps:
@@ -80,19 +81,27 @@ for i in range(num_reps):
 p = np.mean(binary_outputs)
 print(p)
 print(pd.array(binary_outputs).value_counts().sort_index())
+"""
 
 embeddings = []
+"""
 outputs = []
 labels = []
+"""
+
 for i in tqdm(range(len(df))):
     context = strings[i]
+    """
     label = 1 if labelss[i] == 'statistics' else 0
     labels.append(label)
     updated_prompt = prompt.format(context)
+    """
     
-    embedding = embedding_model.embed_query(updated_prompt)
+    embedding = embedding_model.embed_query(context)
+    updated_prompt = prompt.format(context)
     embeddings.append(embedding)
     
+    """
     outputs_for_prompt = []
     count = 0
     while count < num_reps:
@@ -103,10 +112,11 @@ for i in tqdm(range(len(df))):
             outputs_for_prompt.append(out)
             count += 1
     outputs.append(outputs_for_prompt)
+        """
 
-labels = np.array(labels)
+###labels = np.array(labels)
 embeddings = np.array(embeddings)
-
+"""
 binary_outputs = np.zeros((len(outputs), num_reps))
 for i in range(len(outputs)):
     for j in range(num_reps):
@@ -118,14 +128,15 @@ for i in range(len(outputs)):
         else:
             break
 p = np.mean(binary_outputs, axis=1)
+"""
 
 updated_prompt= prompt.format("")
 print(updated_prompt)
 emb0 = embedding_model.embed_query(updated_prompt)
 emb0 = np.array(emb0)
 
-np.save("1-embeddings-random-"+str(num_reps)+".npy", embeddings)
-np.save("1-labels-random-"+str(num_reps)+".npy", labels)
-np.save("1-probabilities-random-"+str(num_reps)+".npy", p)
-np.save("1-outputs-random-"+str(num_reps)+".npy", outputs)
-np.save("1-binary_outputs-random-"+str(num_reps)+".npy", binary_outputs)
+np.save("1-embeddings-random-no-query"+str(num_reps)+".npy", embeddings)
+#np.save("1-labels-random-"+str(num_reps)+".npy", labels)
+#np.save("1-probabilities-random-"+str(num_reps)+".npy", p)
+#np.save("1-outputs-random-"+str(num_reps)+".npy", outputs)
+#np.save("1-binary_outputs-random-"+str(num_reps)+".npy", binary_outputs)
