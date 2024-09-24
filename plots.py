@@ -11,7 +11,7 @@ from scipy.stats import pearsonr
 import random
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-embeddings = np.load("1-embeddings-random-no-query10.npy")
+embeddings = np.load("1-embeddings-random-no-query-nomic10.npy")
 outputs = np.load("1-outputs-random-10.npy")
 binary_outputs = np.load("1-binary_outputs-random-10.npy")
 labels = np.load("1-labels-random-10.npy")
@@ -67,8 +67,9 @@ ax = fig.add_subplot(111, projection='3d')
 xg, yg = np.meshgrid(lowdim_embeddings[:, 0], lowdim_embeddings[:, 1], indexing='ij')
 interp = RBFInterpolator(lowdim_embeddings, p, kernel='linear', smoothing=5)
 
-xx = np.linspace(-0.30, 0.30, 100)
-yy = np.linspace(-0.30, 0.30, 100)
+
+xx = np.linspace(-0.40, 0.40, 100)
+yy = np.linspace(-0.40, 0.40, 100)
 X, Y = np.meshgrid(xx, yy, indexing='ij')
 
 grid = np.concatenate((X.reshape(-1, 1), Y.reshape(-1, 1)), axis=1)

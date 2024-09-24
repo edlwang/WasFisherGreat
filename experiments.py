@@ -2,13 +2,20 @@ from langchain_community.embeddings import LlamaCppEmbeddings
 from langchain_community.llms import LlamaCpp
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain_nomic import NomicEmbeddings
 
 import pandas as pd
 import numpy as np
 
 from tqdm import tqdm
+import getpass
+import os
+
+if not os.getenv("NOMIC_API_KEY"):
+    os.environ["NOMIC_API_KEY"] = getpass.getpass("Enter your Nomic API key: ")
 
 llama_model_path = '/Users/edward/Documents/WasFisherGreat/llama-2-7b-chat.Q4_0.gguf'
+"""
 embedding_model = LlamaCppEmbeddings(
     model_path=llama_model_path, 
     #n_ctx=2048,
@@ -16,6 +23,10 @@ embedding_model = LlamaCppEmbeddings(
     n_threads=8,
     n_batch=1000,
     verbose=False)
+"""
+embedding_model = NomicEmbeddings(
+    model="nomic-embed-text-v1.5",
+)
 
 filepath = '/Users/edward/Documents/WasFisherGreat/randomcontexts.xlsx'
 
@@ -135,7 +146,7 @@ print(updated_prompt)
 emb0 = embedding_model.embed_query(updated_prompt)
 emb0 = np.array(emb0)
 
-np.save("1-embeddings-random-no-query"+str(num_reps)+".npy", embeddings)
+np.save("1-embeddings-random-no-query-nomic"+str(num_reps)+".npy", embeddings)
 #np.save("1-labels-random-"+str(num_reps)+".npy", labels)
 #np.save("1-probabilities-random-"+str(num_reps)+".npy", p)
 #np.save("1-outputs-random-"+str(num_reps)+".npy", outputs)
