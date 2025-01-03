@@ -15,7 +15,6 @@ if not os.getenv("NOMIC_API_KEY"):
     os.environ["NOMIC_API_KEY"] = getpass.getpass("Enter your Nomic API key: ")
 
 llama_model_path = '/Users/edward/Documents/WasFisherGreat/llama-2-7b-chat.Q4_0.gguf'
-"""
 embedding_model = LlamaCppEmbeddings(
     model_path=llama_model_path, 
     #n_ctx=2048,
@@ -27,6 +26,7 @@ embedding_model = LlamaCppEmbeddings(
 embedding_model = NomicEmbeddings(
     model="nomic-embed-text-v1.5",
 )
+"""
 
 filepath = '/Users/edward/Documents/WasFisherGreat/randomcontexts.xlsx'
 
@@ -67,7 +67,7 @@ llm = LlamaCpp(
 )
 llm.client.verbose = False
 
-num_reps = 10
+num_reps = 100
 """
 output = []
 count = 0
@@ -105,11 +105,11 @@ for i in tqdm(range(len(df))):
     """
     label = 1 if labelss[i] == 'statistics' else 0
     labels.append(label)
-    updated_prompt = prompt.format(context)
     """
     
-    embedding = embedding_model.embed_query(context)
-    updated_prompt = prompt.format(context)
+    embedding = embedding_model.embed_query(context) # only context
+    #updated_prompt = prompt.format(context) # full prompt
+    #embedding = embedding_model.embed_query(updated_prompt) # full prompt
     embeddings.append(embedding)
     
     """
@@ -146,7 +146,7 @@ print(updated_prompt)
 emb0 = embedding_model.embed_query(updated_prompt)
 emb0 = np.array(emb0)
 
-np.save("1-embeddings-random-no-query-nomic"+str(num_reps)+".npy", embeddings)
+np.save("1-embeddings-random-only-context-llama-"+str(num_reps)+".npy", embeddings)
 #np.save("1-labels-random-"+str(num_reps)+".npy", labels)
 #np.save("1-probabilities-random-"+str(num_reps)+".npy", p)
 #np.save("1-outputs-random-"+str(num_reps)+".npy", outputs)

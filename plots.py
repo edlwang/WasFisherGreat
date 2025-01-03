@@ -10,12 +10,15 @@ from matplotlib import cm
 from scipy.stats import pearsonr
 import random
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.model_selection import LeaveOneOut
+from sklearn.decomposition import PCA
+from tqdm import tqdm
 
-embeddings = np.load("1-embeddings-random-no-query-nomic10.npy")
-outputs = np.load("1-outputs-random-10.npy")
-binary_outputs = np.load("1-binary_outputs-random-10.npy")
-labels = np.load("1-labels-random-10.npy")
-p = np.load("1-probabilities-random-10.npy")
+embeddings = np.load("1-embeddings-random-only-context-llama-100.npy")
+outputs = np.load("1-outputs-random-100.npy")
+binary_outputs = np.load("1-binary_outputs-random-100.npy")
+labels = np.load("1-labels-random-100.npy")
+p = np.load("1-probabilities-random-100.npy")
 
 # scree plot
 
@@ -99,7 +102,7 @@ ax.view_init(elev=20, azim=15, roll=0)
 
 plt.show()
 
-fig.savefig('./3d-surface-random.pdf', bbox_inches='tight')
+fig.savefig('./3d-surface-random-full-prompt-llama.pdf', bbox_inches='tight')
 
 import plotly.graph_objects as go
 
@@ -189,3 +192,39 @@ ax.set_xlabel(r"FLD Projection of $MDS(embed(prompt, a_i))$")
 ax.set_ylabel(r"$\hat P \; [Z = 1 \mid prompt, a_i] $")
 ax.legend(loc=5)
 plt.show()
+
+mse_accuracies = []
+rel_mse_accuracies = []
+
+for pca_dim in range(1,550):
+    pca_embeddings = PCA(n_components=pca_dim).fit_transform(embeddings)
+    pca_lowdim_embeddings = mds.fit_transform(pca_embeddings)
+
+# LOOCV for interpolation
+    loocv_mse_accuracy = 0
+    loocv_rel_mse_accuracy = 0
+    eps = 1e-10
+
+    for (train_index, test_index) in tqdm(LeaveOneOut().split(lowdim_embeddings)):
+        model = RBFInterpolator(pca_lowdim_embeddings[train_index], p[train_index], kernel='linear', smoothing=5)
+        estimator = model(pca_lowdim_embeddings[test_index])[0]
+        true_val = min(max(eps, interp(lowdim_embeddings[test_index])[0]), 1 - eps)
+        se = np.square(estimator - true_val)
+        loocv_mse_accuracy += se 
+        loocv_rel_mse_accuracy += se/(true_val*(1-true_val))
+
+
+
+    n_splits = LeaveOneOut().get_n_splits(pca_lowdim_embeddings)
+    loocv_mse_accuracy /= n_splits
+    loocv_rel_mse_accuracy /=  n_splits
+    print(f"PCA Dimension={pca_dim}")
+    print(f"LOOCV Interpolation MSE Accuracy: {loocv_mse_accuracy}")
+    print(f"LOOCV Interpolation Relative MSE Accuracy: {loocv_rel_mse_accuracy}")
+    rel_mse_accuracies.append(loocv_rel_mse_accuracy)
+    mse_accuracies.append(loocv_mse_accuracy)
+
+mse_accuracies=np.array(mse_accuracies)
+rel_mse_accuracies=np.array(rel_mse_accuracies)
+np.save('llama-only-mse-pca.npy', mse_accuracies)
+np.save('llama-only-rel-mse-pca.npy', rel_mse_accuracies)
